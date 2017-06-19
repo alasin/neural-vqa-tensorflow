@@ -34,8 +34,11 @@ def runner():
     img_fname = all_image_paths[0]
     checksum = md5(img_fname)
     if img_dict.has_key(checksum):
-        answer = predict.serve(img_dict[checksum], question)
+        #print "Image exists"
+        img_features = img_dict[checksum]
+        answer = predict.serve(img_features, question)
     else:
+        #print "New image"
         img_features = predict.calcFeatures(img_fname)
         img_dict[checksum] = img_features
         answer = predict.serve(img_features, question)

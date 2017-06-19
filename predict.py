@@ -119,7 +119,11 @@ def serve(img_features, question):
 
 	print "Question:", args.question
 
+	tf.reset_default_graph()
+
 	vocab_data = data_loader.get_question_answer_vocab(args.data_dir)
+	qvocab = vocab_data['question_vocab']
+	q_map = { vocab_data['question_vocab'][qw] : qw for qw in vocab_data['question_vocab']}
 	
 	model_options = {
 		'num_lstm_layers' : args.num_lstm_layers,
@@ -147,6 +151,7 @@ def serve(img_features, question):
 	ans_map = { vocab_data['answer_vocab'][ans] : ans for ans in vocab_data['answer_vocab']}
 	model = vis_lstm_model.Vis_lstm_model(model_options)
 	input_tensors, t_prediction, t_ans_probab = model.build_generator()
+	
 	sess = tf.InteractiveSession()
 	saver = tf.train.Saver()
 	saver.restore(sess, args.model_path)
@@ -162,6 +167,7 @@ def serve(img_features, question):
 	#answer_probab_tuples.sort()
 	#print "Top Answers"
 	ans_list = []
+	#print ans_list
 	ans_list.append(ans_map[pred[0]])
 	#for i in range(3):
 	#	ans_list.append(ans_map[ answer_probab_tuples[i][1] ])
