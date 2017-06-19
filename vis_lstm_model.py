@@ -44,7 +44,8 @@ class Vis_lstm_model:
 					lstm_preactive = tf.matmul(x[lstm_step], self.lstm_W[l]) + self.lstm_b[l]
 				else:
 					lstm_preactive = tf.matmul(h[lstm_step-1], self.lstm_U[l]) + tf.matmul(x[lstm_step], self.lstm_W[l]) + self.lstm_b[l]
-				i, f, o, new_c = tf.split(1, 4, lstm_preactive)
+				#i, f, o, new_c = tf.split(1, 4, lstm_preactive)
+				i, f, o, new_c = tf.split(lstm_preactive, 4, 1)
 				i = tf.nn.sigmoid(i)
 				f = tf.nn.sigmoid(f)
 				o = tf.nn.sigmoid(o)
