@@ -117,8 +117,6 @@ def serve(img_features, question):
 		
 	args = parser.parse_args()
 
-	print "Question:", args.question
-
 	tf.reset_default_graph()
 
 	vocab_data = data_loader.get_question_answer_vocab(args.data_dir)
@@ -162,15 +160,9 @@ def serve(img_features, question):
     })
 
 	sess.close()
-	print "Ans:", ans_map[pred[0]]
-	#answer_probab_tuples = [(-answer_probab[0][idx], idx) for idx in range(len(answer_probab[0]))]
-	#answer_probab_tuples.sort()
-	#print "Top Answers"
+
 	ans_list = []
-	#print ans_list
 	ans_list.append(ans_map[pred[0]])
-	#for i in range(3):
-	#	ans_list.append(ans_map[ answer_probab_tuples[i][1] ])
 	
 	return ans_list
 
