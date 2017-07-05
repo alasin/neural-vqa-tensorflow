@@ -9,7 +9,6 @@ import re
 
 
 def main():
-
 	parser = argparse.ArgumentParser()
     parser.add_argument('--image_path', type=str, default='Data/cat.jpeg',
                         help='Image Path')
