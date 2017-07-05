@@ -21,14 +21,17 @@ mime = magic.Magic(mime=True)
 ## common validation functions ##
 #################################
 
+
 def validateTOKEN(function_name):
     try:
         assert isinstance(TOKEN, str)
     except Exception as e:
         if (e.__class__.__name__ == 'NameError'):
-            raise NameError("cvfy [Error Code: 001] => TOKEN undefined: {0} called before registering the app".format(function_name))
+            raise NameError(
+                "cvfy [Error Code: 001] => TOKEN undefined: {0} called before registering the app".format(function_name))
         elif (e.__class__.__name__ == 'AssertionError'):
-            raise AssertionError("cvfy [Error Code: 002] => TOKEN not a string: {0} called with an invalid TOKEN value".format(function_name))
+            raise AssertionError(
+                "cvfy [Error Code: 002] => TOKEN not a string: {0} called with an invalid TOKEN value".format(function_name))
     try:
         if (TOKEN.split(':')[0] == 'gh'):
             assert int(TOKEN.split(':')[3])
@@ -42,16 +45,20 @@ def validateTOKEN(function_name):
         if (e.__class__.__name__ == 'AssertionError'):
             raise ValueError("cvfy [Error Code: 003] => Malformed Token")
 
+
 def validate_socket_id(request):
     try:
         if not request.form['socket-id']:
-            raise Exception("cvfy [Error Code: 011] => field socket-id not found in the incoming request")
+            raise Exception(
+                "cvfy [Error Code: 011] => field socket-id not found in the incoming request")
     except:
-        raise Exception("cvfy [Error Code: 011] => field socket-id not found in the incoming request")
+        raise Exception(
+            "cvfy [Error Code: 011] => field socket-id not found in the incoming request")
 
 ##########
 ## CORS ##
 ##########
+
 
 def crossdomain(*args, **kwargs):
     return (cross_origin)
@@ -60,10 +67,12 @@ def crossdomain(*args, **kwargs):
 ## app decorators ##
 ####################
 
+
 def override_route(route):
     def wrapper(*args, **kwargs):
         return (route('/event', methods=['POST', ]))
     return wrapper
+
 
 def override_run(TOKEN):
     def wrapper(*args, **kwargs):
@@ -77,6 +86,7 @@ def override_run(TOKEN):
 ## app register ##
 ##################
 
+
 def register(APP_TOKEN):
     global TOKEN
     TOKEN = APP_TOKEN
@@ -87,7 +97,8 @@ def register(APP_TOKEN):
     elif (TOKEN.split(':')[0] == 'nongh'):
         CVFY_TARGET = 'remote'
     else:
-        raise Exception("cvfy [Error Code: 012] => Malformed Token - Cannot set Target")
+        raise Exception(
+            "cvfy [Error Code: 012] => Malformed Token - Cannot set Target")
 
     app.listen = override_route(app.route)
     app.run = override_run(TOKEN)
@@ -108,7 +119,8 @@ def transformToLocalPath(image_object_array):
             extension = '.png'
         elif (image_object.content_type == 'image/jpg' or image_object.content_type == 'image/jpeg'):
             extension = '.jpg'
-        array_of_paths_to_send_back.append(path_to_use + str(index) + extension)
+        array_of_paths_to_send_back.append(
+            path_to_use + str(index) + extension)
         with open(path_to_use + str(index) + extension, 'wb') as file:
             file.write(image_object.read())
     return (array_of_paths_to_send_back)
@@ -116,6 +128,7 @@ def transformToLocalPath(image_object_array):
 #####################
 ## input functions ##
 #####################
+
 
 def getTextArray():
     validateTOKEN(sys._getframe().f_code.co_name)
@@ -128,6 +141,7 @@ def getTextArray():
     except Exception as e:
         pass
     return (textdata)
+
 
 def getImageArray():
     validateTOKEN(sys._getframe().f_code.co_name)
@@ -142,7 +156,6 @@ def getImageArray():
     return (transformToLocalPath(imagedata))
 
 
-
 ######################
 ## output functions ##
 ######################
@@ -153,10 +166,12 @@ def sendTextArray(data):
     if (isinstance(data, list) or isinstance(data, tuple)):
         pass
     else:
-        raise ValueError("cvfy [Error Code: 005] => sendTextArray can only accept an array or a tuple")
+        raise ValueError(
+            "cvfy [Error Code: 005] => sendTextArray can only accept an array or a tuple")
     for element in data:
         if (not isinstance(element, basestring if (sys.version_info[0] == 2) else str)):
-            raise ValueError("cvfy [Error Code: 006] => iterable is not composed of strings")
+            raise ValueError(
+                "cvfy [Error Code: 006] => iterable is not composed of strings")
     data = {
         'socketId': request.form['socket-id'],
         'data': data
@@ -165,21 +180,29 @@ def sendTextArray(data):
     try:
         headers = {'Content-Type': 'application/json'}
         if (CVFY_TARGET == 'local'):
-            url = 'http://' + TOKEN.split(':')[1] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[1] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         elif (CVFY_TARGET == 'remote'):
-            url = 'http://' + TOKEN.split(':')[5] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
-	r = requests.post(url, headers=headers, data=data)
+            url = 'http://' + \
+                TOKEN.split(':')[5] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+        r = requests.post(url, headers=headers, data=data)
         if (r.status_code == 400):
-            raise Exception("cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
+            raise Exception(
+                "cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
         elif (r.status_code == 500):
-            raise Exception("cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
+            raise Exception(
+                "cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
         elif (r.status_code == 404):
-            raise Exception("cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
+            raise Exception(
+                "cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
         elif (r.status_code == 200):
             return (r.text)
     except Exception as e:
         if (e.__class__.__name__ == 'ConnectionError'):
             raise Exception("cvfy [Error Code: 010] => Connection Error")
+
 
 def sendGraphArray(data):
     validateTOKEN(sys._getframe().f_code.co_name)
@@ -187,10 +210,12 @@ def sendGraphArray(data):
     if (isinstance(data, list) or isinstance(data, tuple)):
         pass
     else:
-        raise ValueError("cvfy [Error Code: 0017] => sendBarGraphArray can only accept an array or a tuple")
+        raise ValueError(
+            "cvfy [Error Code: 0017] => sendBarGraphArray can only accept an array or a tuple")
     for element in data:
         if (not isinstance(element, list)):
-            raise ValueError("cvfy [Error Code: 0018] => iterable is not composed of arrays")
+            raise ValueError(
+                "cvfy [Error Code: 0018] => iterable is not composed of arrays")
     data = {
         'socketId': request.form['socket-id'],
         'data': data
@@ -199,21 +224,29 @@ def sendGraphArray(data):
     try:
         headers = {'Content-Type': 'application/json'}
         if (CVFY_TARGET == 'local'):
-            url = 'http://' + TOKEN.split(':')[1] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[1] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         elif (CVFY_TARGET == 'remote'):
-            url = 'http://' + TOKEN.split(':')[5] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[5] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         r = requests.post(url, headers=headers, data=data)
         if (r.status_code == 400):
-            raise Exception("cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
+            raise Exception(
+                "cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
         elif (r.status_code == 500):
-            raise Exception("cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
+            raise Exception(
+                "cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
         elif (r.status_code == 404):
-            raise Exception("cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
+            raise Exception(
+                "cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
         elif (r.status_code == 200):
             return (r.text)
     except Exception as e:
         if (e.__class__.__name__ == 'ConnectionError'):
             raise Exception("cvfy [Error Code: 010] => Connection Error")
+
 
 def sendTextArrayToTerminal(data):
     validateTOKEN(sys._getframe().f_code.co_name)
@@ -221,10 +254,12 @@ def sendTextArrayToTerminal(data):
     if (isinstance(data, list) or isinstance(data, tuple)):
         pass
     else:
-        raise ValueError("cvfy [Error Code: 017] => sendTextArrayToTerminal can only accept an array or a tuple")
+        raise ValueError(
+            "cvfy [Error Code: 017] => sendTextArrayToTerminal can only accept an array or a tuple")
     for element in data:
         if (not isinstance(element, basestring if (sys.version_info[0] == 2) else str)):
-            raise ValueError("cvfy [Error Code: 006] => iterable is not composed of strings")
+            raise ValueError(
+                "cvfy [Error Code: 006] => iterable is not composed of strings")
     data = {
         'socketId': request.form['socket-id'],
         'terminalData': data
@@ -233,16 +268,23 @@ def sendTextArrayToTerminal(data):
     try:
         headers = {'Content-Type': 'application/json'}
         if (CVFY_TARGET == 'local'):
-            url = 'http://' + TOKEN.split(':')[1] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[1] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         elif (CVFY_TARGET == 'remote'):
-            url = 'http://' + TOKEN.split(':')[5] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[5] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         r = requests.post(url, headers=headers, data=data)
         if (r.status_code == 400):
-            raise Exception("cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
+            raise Exception(
+                "cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
         elif (r.status_code == 500):
-            raise Exception("cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
+            raise Exception(
+                "cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
         elif (r.status_code == 404):
-            raise Exception("cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
+            raise Exception(
+                "cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
         elif (r.status_code == 200):
             return (r.text)
     except Exception as e:
@@ -256,7 +298,8 @@ def sendImageArray(data, mode):
     if (isinstance(data, list) or isinstance(data, tuple)):
         pass
     else:
-        raise ValueError("cvfy [Error Code: 013] => sendImageArray can only accept an array or a tuple")
+        raise ValueError(
+            "cvfy [Error Code: 013] => sendImageArray can only accept an array or a tuple")
     tempdata = []
     if (mode == 'file_path'):
         try:
@@ -271,10 +314,12 @@ def sendImageArray(data, mode):
                     src += base64.b64encode(file.read())
                     tempdata.append(src)
         except Exception as e:
-            raise Exception("cvfy [Error Code: 015] => unable to read image file - reason: {}".format(e))
+            raise Exception(
+                "cvfy [Error Code: 015] => unable to read image file - reason: {}".format(e))
     elif (mode == 'numpy_array'):
         image_base_path = '/tmp/' + str(random.randint(1, 1000000)) + '/'
-        subprocess.Popen('mkdir -p {}'.format(image_base_path), shell=True).wait()
+        subprocess.Popen(
+            'mkdir -p {}'.format(image_base_path), shell=True).wait()
         try:
             for index, numpy_image_array in enumerate(data):
                 path = image_base_path + str(index) + '.png'
@@ -288,9 +333,11 @@ def sendImageArray(data, mode):
                         src += 'data:image/png;base64,'
                     src += base64.b64encode(file.read())
                     tempdata.append(src)
-            subprocess.Popen('rm -rf {}'.format(image_base_path), shell=True).wait()
+            subprocess.Popen(
+                'rm -rf {}'.format(image_base_path), shell=True).wait()
         except Exception as e:
-            raise Exception("cvfy [Error Code: 016] => unable to write numpy array as image")
+            raise Exception(
+                "cvfy [Error Code: 016] => unable to write numpy array as image")
     else:
         raise ValueError("cvfy [Error Code: 014] => invalid type value")
     data = {
@@ -301,16 +348,23 @@ def sendImageArray(data, mode):
     try:
         headers = {'Content-Type': 'application/json'}
         if (CVFY_TARGET == 'local'):
-            url = 'http://' + TOKEN.split(':')[1] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[1] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         elif (CVFY_TARGET == 'remote'):
-            url = 'http://' + TOKEN.split(':')[5] + ':' + TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
+            url = 'http://' + \
+                TOKEN.split(':')[5] + ':' + \
+                TOKEN.split(':')[3] + CVFY_INJECTION_SUBPATH
         r = requests.post(url, headers=headers, data=data)
         if (r.status_code == 400):
-            raise Exception("cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
+            raise Exception(
+                "cvfy [Error Code: 007] => 400: Bad Request - app server says malformed request")
         elif (r.status_code == 500):
-            raise Exception("cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
+            raise Exception(
+                "cvfy [Error Code: 008] => 500: Internal Server Error - app server cannot handle your request")
         elif (r.status_code == 404):
-            raise Exception("cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
+            raise Exception(
+                "cvfy [Error Code: 009] => 404: Not Found - app server cannot be found; {0} is unreachable".format(url))
         elif (r.status_code == 200):
             return (r.text)
     except Exception as e:
