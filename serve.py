@@ -23,7 +23,7 @@ def runner():
 	    err_list.append("Please upload an image first")
 	
     cvfy.sendTextArray(err_list)
-	return 'OK'
+    return 'OK'
     
     all_text = cvfy.getTextArray()
 

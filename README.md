@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/neural-vqa-tensorflow/Lobby](https://badges.gitter.im/neural-vqa-tensorflow/Lobby.svg)](https://gitter.im/neural-vqa-tensorflow/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This is a Tensorflow implementation of the VIS + LSTM visual question answering model from the paper [Exploring Models and Data for Image Question Answering][1]
-by Mengye Ren, Ryan Kiros & Richard Zemel. The model architectures vaires slightly from the original - the image embedding is plugged into the last lstm step (after the question) instead of the first. The LSTM model uses the same hyperparameters as those in the [Torch implementation of neural-VQA][2]. 
+by Mengye Ren, Ryan Kiros & Richard Zemel. The model architectures vaires slightly from the original - the image embedding is plugged into the last lstm step (after the question) instead of the first. The LSTM model uses the same hyperparameters as those in the [Torch implementation of neural-VQA][2].
 ![Model architecture](http://i.imgur.com/Jvixx2W.jpg)
 
 ## Requirements
@@ -40,7 +40,7 @@ python extract_fc7.py --split=val
 - <b>Prediction</b>
   * ```python predict.py --image_path="sample_image.jpg" --question="What is the color of the animal shown?" --model_path = "Data/Models/model2.ckpt"```
   * Models are saved during training after each of the complete training data in ```Data/Models```. Supply the path of the trained model in ```model_path``` option.
-  
+
 - <b>Evaluation</b>
   * run `python evaluate.py` with the same options as that in train.py, if not the defaults.
 
@@ -51,7 +51,7 @@ python extract_fc7.py --split=val
 - The LSTM+VIS model is defined in vis_lstm.py. The input tensors for training are fc7 features, Questions(Word indices upto 22 words), Answers(one hot encoding vector of size 1000). The model depicted in the figure is implemented with 2 LSTM layers by default(num_layers in configurable).
 
 ## Results
-The model achieved an accuray of 50.8% on the validation dataset after 12 epochs of training across the entire training dataset.
+The model achieved an accuracy of 50.8% on the validation dataset after 12 epochs of training across the entire training dataset.
 
 ## Sample Predictions
 
@@ -70,6 +70,18 @@ python predict.py --image_path="Data/sample.jpg" --question="Which animal is thi
 | ![](http://i.imgur.com/VrjUbgH.jpg)      | What is in the standing person's hand? | bat, glove, ball|
 | ![](http://i.imgur.com/80foxDZ.jpg)      | What are they doing? | surfing, swimming, parasailing|
 | ![](http://i.imgur.com/7ZZi2Xp.jpg)      | What sport is this? | skateboarding, parasailing, surfing|
+
+## Web demo
+
+![](http://i.imgur.com/flaA7Sh.png)
+- Download and build [Origami](https://github.com/Cloud-CV/Origami).
+- Configure the local CVfy webapp following [these instructions](http://cvfy.cloudcv.org/gettingstarted/configuration).
+- Create a new app for this demo following [these instructions](http://cvfy.cloudcv.org/gettingstarted/create). Select one 'Text Image Input' and one 'Text Output' for this demo. Start the demo.
+- Pass the generated token as argument to the `cvfy.register` function in `serve.py`.
+- Start this application to connect with the CVfy webapp using `python serve.py`.
+- Have fun!
+
+
 
 ## References
 - [Exploring Models and Data for Image Question Answering][1]
